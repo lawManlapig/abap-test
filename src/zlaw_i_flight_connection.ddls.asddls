@@ -14,8 +14,9 @@
 }
 define view entity ZLAW_I_Flight_Connection
   as select from /dmo/connection as connection
-  association [1..*] to ZLAW_I_Flight_Info_R as _flightInfo on  $projection.CarrierId    = _flightInfo.CarrierId
-                                                            and $projection.ConnectionId = _flightInfo.ConnectionId
+  association [1..*] to ZLAW_I_Flight_Info_R    as _flightInfo    on  $projection.CarrierId    = _flightInfo.CarrierId
+                                                                  and $projection.ConnectionId = _flightInfo.ConnectionId
+  association [1..1] to ZLAW_I_Flight_Carrier_R as _flightCarrier on  $projection.CarrierId = _flightCarrier.CarrierId
 {
       // Facet
       @UI.facet: [{
@@ -36,6 +37,8 @@ define view entity ZLAW_I_Flight_Connection
 
       @UI.lineItem: [{ position: 1 }] // Line Item
       @UI.identification: [{ position: 1 }] // Facet
+      //      @ObjectModel.text.element: [ '_flightCarrier.Name' ] // Get text directly from association
+      @ObjectModel.text.association: '_flightCarrier' // Get text from Association.. need annotation sa assoc cds
   key connection.carrier_id      as CarrierId,
       @UI.lineItem: [{
           position: 2,
@@ -70,5 +73,6 @@ define view entity ZLAW_I_Flight_Connection
       connection.distance_unit   as DistanceUnit,
 
       /* Exposed Association */
-      _flightInfo
+      _flightInfo,
+      _flightCarrier
 }
