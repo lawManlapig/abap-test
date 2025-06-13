@@ -80,6 +80,8 @@ define view entity ZLAW_I_Flight_Connection
       connection.distance_unit   as DistanceUnit,
 
       /* Exposed Association */
+      @Search.defaultSearchElement: true
       _flightInfo,
+      @Search.defaultSearchElement: true
       _flightCarrier
 }

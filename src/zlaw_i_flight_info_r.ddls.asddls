@@ -7,6 +7,7 @@
     sizeCategory: #S,
     dataClass: #MIXED
 }
+@Search.searchable: true
 define view entity ZLAW_I_Flight_Info_R
   as select from /dmo/flight
   association [1..1] to ZLAW_I_Flight_Carrier_R as _flightCarrier on $projection.CarrierId = _flightCarrier.CarrierId
@@ -24,6 +25,8 @@ define view entity ZLAW_I_Flight_Info_R
       @UI.hidden: true
       currency_code  as CurrencyCode,
       @UI.lineItem: [{ position: 5 }]
+      @Search.defaultSearchElement: true
+      @Search.fuzzinessThreshold: 0.7
       plane_type_id  as PlaneTypeId,
       @UI.lineItem: [{ position: 6 }]
       seats_max      as SeatsMax,
