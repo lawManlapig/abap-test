@@ -12,6 +12,9 @@
     typeName: 'Connection',
     typeNamePlural: 'Connections'
 }
+
+// Enable Search field (generic)
+@Search.searchable: true
 define view entity ZLAW_I_Flight_Connection
   as select from /dmo/connection as connection
   association [1..*] to ZLAW_I_Flight_Info_R    as _flightInfo    on  $projection.CarrierId    = _flightInfo.CarrierId
@@ -39,12 +42,14 @@ define view entity ZLAW_I_Flight_Connection
       @UI.identification: [{ position: 1 }] // Facet
       //      @ObjectModel.text.element: [ '_flightCarrier.Name' ] // Get text directly from association
       @ObjectModel.text.association: '_flightCarrier' // Get text from Association.. need annotation sa assoc cds
+      @Search.defaultSearchElement: true // Enable Searching by this value
   key connection.carrier_id      as CarrierId,
       @UI.lineItem: [{
           position: 2,
           cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 2 }]
+      @Search.defaultSearchElement: true 
   key connection.connection_id   as ConnectionId,
       @UI.selectionField: [{ position: 1 }]
       @UI.lineItem: [{
@@ -52,6 +57,7 @@ define view entity ZLAW_I_Flight_Connection
         cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 3 }]
+      @Search.defaultSearchElement: true 
       connection.airport_from_id as AirportFromId,
       @UI.selectionField: [{ position: 2 }]
       @UI.lineItem: [{
@@ -59,6 +65,7 @@ define view entity ZLAW_I_Flight_Connection
           cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 4 }]
+      @Search.defaultSearchElement: true 
       connection.airport_to_id   as AirportToId,
       @UI.lineItem: [{ position: 5 }]
       @UI.identification: [{ position: 5 }]

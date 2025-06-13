@@ -9,8 +9,10 @@
 }
 define view entity ZLAW_I_Flight_Info_R
   as select from /dmo/flight
+  association [1..1] to ZLAW_I_Flight_Carrier_R as _flightCarrier on $projection.CarrierId = _flightCarrier.CarrierId
 {
       @UI.lineItem: [{ position: 1 }]
+      @ObjectModel.text.association: '_flightCarrier'
   key carrier_id     as CarrierId,
       @UI.lineItem: [{ position: 2 }]
   key connection_id  as ConnectionId,
@@ -26,5 +28,8 @@ define view entity ZLAW_I_Flight_Info_R
       @UI.lineItem: [{ position: 6 }]
       seats_max      as SeatsMax,
       @UI.lineItem: [{ position: 7 }]
-      seats_occupied as SeatsOccupied
+      seats_occupied as SeatsOccupied,
+
+      /* Exposed Association */
+      _flightCarrier
 }
