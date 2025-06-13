@@ -13,20 +13,54 @@
     typeNamePlural: 'Connections'
 }
 define view entity ZLAW_I_Flight_Connection
-  as select from /dmo/connection
+  as select from /dmo/connection as connection
+  association [1..*] to ZLAW_I_Flight_Info_R as _flightInfo on  $projection.CarrierId    = _flightInfo.CarrierId
+                                                            and $projection.ConnectionId = _flightInfo.ConnectionId
 {
-      @UI.lineItem: [{ position: 1 }]
-  key carrier_id      as CarrierId,
-      @UI.lineItem: [{ position: 2 }]
-  key connection_id   as ConnectionId,
-      airport_from_id as AirportFromId,
-      @UI.lineItem: [{ position: 3 }]
-      airport_to_id   as AirportToId,
-      @UI.lineItem: [{ position: 4 }]
-      departure_time  as DepartureTime,
+      // Facet
+      @UI.facet: [{
+          purpose: #STANDARD,
+          type: #IDENTIFICATION_REFERENCE,
+          position: 1,
+          label: 'Header Details'
+      }]
+
+
+      @UI.lineItem: [{ position: 1 }] // Line Item
+      @UI.identification: [{ position: 1 }] // Facet
+  key connection.carrier_id      as CarrierId,
+      @UI.lineItem: [{
+          position: 2,
+          cssDefault.width: '9rem'
+      }]
+      @UI.identification: [{ position: 2 }]
+  key connection.connection_id   as ConnectionId,
+      @UI.selectionField: [{ position: 1 }]
+      @UI.lineItem: [{
+        position: 3,
+        cssDefault.width: '9rem'
+      }]
+      @UI.identification: [{ position: 3 }]
+      connection.airport_from_id as AirportFromId,
+      @UI.selectionField: [{ position: 2 }]
+      @UI.lineItem: [{
+          position: 4,
+          cssDefault.width: '9rem'
+      }]
+      @UI.identification: [{ position: 4 }]
+      connection.airport_to_id   as AirportToId,
       @UI.lineItem: [{ position: 5 }]
-      arrival_time    as ArrivalTime,
+      @UI.identification: [{ position: 5 }]
+      connection.departure_time  as DepartureTime,
+      @UI.lineItem: [{ position: 6 }]
+      @UI.identification: [{ position: 6 }]
+      connection.arrival_time    as ArrivalTime,
       @Semantics.quantity.unitOfMeasure: 'DistanceUnit'
-      distance        as Distance,
-      distance_unit   as DistanceUnit
+      @UI.identification: [{ position: 7 }]
+      connection.distance        as Distance,
+      @UI.hidden: true
+      connection.distance_unit   as DistanceUnit,
+      
+      /* Exposed Association */
+      _flightInfo
 }

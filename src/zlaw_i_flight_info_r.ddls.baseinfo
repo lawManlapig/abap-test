@@ -3,12 +3,10 @@
 {
 "FROM":
 [
-"/DMO/CONNECTION"
+"/DMO/FLIGHT"
 ],
 "ASSOCIATED":
-[
-"ZLAW_I_FLIGHT_INFO_R"
-],
+[],
 "BASE":
 [],
 "ANNO_REF":
