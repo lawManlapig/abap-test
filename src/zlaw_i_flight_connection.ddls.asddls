@@ -20,9 +20,17 @@ define view entity ZLAW_I_Flight_Connection
       // Facet
       @UI.facet: [{
           purpose: #STANDARD,
-          type: #IDENTIFICATION_REFERENCE,
+          type: #IDENTIFICATION_REFERENCE, // Single value structure
           position: 1,
-          label: 'Header Details'
+          label: 'Connection Details',
+          id: 'ConnectionDetails'
+      },{
+          purpose: #STANDARD,
+          type: #LINEITEM_REFERENCE, // Display as Table
+          position: 2,
+          label: 'Flight Details',
+          id: 'FlightDetails',
+          targetElement: '_flightInfo' // Source Table
       }]
 
 
@@ -60,7 +68,7 @@ define view entity ZLAW_I_Flight_Connection
       connection.distance        as Distance,
       @UI.hidden: true
       connection.distance_unit   as DistanceUnit,
-      
+
       /* Exposed Association */
       _flightInfo
 }

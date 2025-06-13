@@ -1,4 +1,5 @@
 @EndUserText.label: 'test SD - Flights'
 define service ZLAW_Flights_Demo {
   expose ZLAW_I_Flight_Connection as Connections;
+  expose ZLAW_I_Flight_Info_R     as FlightInformationReadOnly;
 }
