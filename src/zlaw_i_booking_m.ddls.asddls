@@ -1,8 +1,10 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'test CDS - Booking (Managed)'
 @Metadata.ignorePropagatedAnnotations: true
-define root view entity ZLAW_I_Booking_M
+define view entity ZLAW_I_Booking_M
   as select from zlaw_booking_m
+  association        to parent ZLAW_I_Travel_M   as _Travel          on  $projection.TravelId = _Travel.TravelId
+  composition [0..*] of ZLAW_I_BookSuppl_M       as _BookingSupplement
   association [1..1] to /DMO/I_Carrier           as _Carrier         on  $projection.CarrierId = _Carrier.AirlineID
   association [1..1] to /DMO/I_Customer          as _Customer        on  $projection.CustomerId = _Customer.CustomerID
   association [1..1] to /DMO/I_Connection        as _Connection      on  $projection.CarrierId    = _Connection.AirlineID
@@ -26,5 +28,7 @@ define root view entity ZLAW_I_Booking_M
       _Carrier,
       _Customer,
       _Connection,
-      _BookingStatusVH
+      _BookingStatusVH,
+      _Travel,
+      _BookingSupplement
 }

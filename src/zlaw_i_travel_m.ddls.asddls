@@ -3,6 +3,7 @@
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZLAW_I_Travel_M
   as select from zlaw_travel_m
+  composition [0..*] of ZLAW_I_Booking_M         as _Booking // Child Entity
   association [0..1] to /DMO/I_Agency            as _Agency   on $projection.AgencyId = _Agency.AgencyID
   association [0..1] to /DMO/I_Customer          as _Customer on $projection.CustomerId = _Customer.CustomerID
   association [1..1] to I_Currency               as _Currency on $projection.CurrencyCode = _Currency.Currency
@@ -29,5 +30,6 @@ define root view entity ZLAW_I_Travel_M
       _Agency,
       _Customer,
       _Currency,
-      _Status
+      _Status,
+      _Booking
 }
