@@ -49,7 +49,7 @@ define view entity ZLAW_I_Flight_Connection
           cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 2 }]
-      @Search.defaultSearchElement: true 
+      @Search.defaultSearchElement: true
   key connection.connection_id   as ConnectionId,
       @UI.selectionField: [{ position: 1 }]
       @UI.lineItem: [{
@@ -57,7 +57,13 @@ define view entity ZLAW_I_Flight_Connection
         cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 3 }]
-      @Search.defaultSearchElement: true 
+      @Search.defaultSearchElement: true
+      @Consumption.valueHelpDefinition: [{ // Value help for the field
+          entity:{
+            name: 'ZLAW_I_Flight_Airport_VH',
+            element: 'AirportId'
+            }
+      }]
       connection.airport_from_id as AirportFromId,
       @UI.selectionField: [{ position: 2 }]
       @UI.lineItem: [{
@@ -65,7 +71,13 @@ define view entity ZLAW_I_Flight_Connection
           cssDefault.width: '9rem'
       }]
       @UI.identification: [{ position: 4 }]
-      @Search.defaultSearchElement: true 
+      @Search.defaultSearchElement: true
+      @Consumption.valueHelpDefinition: [{ // Value help for the field
+          entity:{
+            name: 'ZLAW_I_Flight_Airport_VH',
+            element: 'AirportId'
+            }
+      }]
       connection.airport_to_id   as AirportToId,
       @UI.lineItem: [{ position: 5 }]
       @UI.identification: [{ position: 5 }]
