@@ -18,9 +18,9 @@ define view entity ZLAW_C_Booking_M
       LastChangedAt,
       /* Associations */
       _BookingStatusVH,
-      _BookingSupplement,
+      _BookingSupplement: redirected to composition child ZLAW_C_BookSuppl_M,
       _Carrier,
       _Connection,
       _Customer,
-      _Travel
+      _Travel: redirected to parent ZLAW_C_Travel_M
 }

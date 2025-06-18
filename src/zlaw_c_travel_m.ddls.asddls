@@ -2,7 +2,9 @@
 @EndUserText.label: 'test CDS - Travel (Consumption)'
 @Metadata.ignorePropagatedAnnotations: true
 define root view entity ZLAW_C_Travel_M
-  provider contract transactional_query // Needed for the provider entity
+  /* provider contract transactional_query
+  This is needed for the provider entity.. No need to define in the child entity/ies */
+  provider contract transactional_query
   as projection on ZLAW_I_Travel_M
 {
   key TravelId,
@@ -23,7 +25,7 @@ define root view entity ZLAW_C_Travel_M
       LastChangedAt,
       /* Associations */
       _Agency,
-      _Booking,
+      _Booking: redirected to composition child ZLAW_C_Booking_M, // Needed to establish parent-child relationship
       _Currency,
       _Customer,
       _Status
