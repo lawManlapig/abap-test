@@ -1,0 +1,29 @@
+@Metadata.layer: #CORE
+annotate entity ZLAW_C_Travel_M with
+{
+  @UI.lineItem: [{ position: 1 }]
+  TravelId;
+  @UI.lineItem: [{ position: 2 }]
+  AgencyId;
+  @UI.lineItem: [{ position: 3 }]
+  CustomerId;
+  @UI.lineItem: [{ position: 4 }]
+  BeginDate;
+  @UI.lineItem: [{ position: 5 }]
+  EndDate;
+  //  BookingFee;
+  @UI.lineItem: [{ position: 6 }]
+  TotalPrice;
+  //  CurrencyCode;
+  //  Description;
+  @UI.lineItem: [{ position: 7 }]
+  OverallStatus;
+  //  CreatedBy;
+  //  CreatedAt;
+  //  LastChangedBy;
+  //  LastChangedAt;
+  //  AgencyName;
+  //  CustomerFirstName;
+  //  StatusText;
+
+}

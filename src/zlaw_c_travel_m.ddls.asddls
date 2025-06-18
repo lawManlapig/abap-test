@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'test CDS - Travel (Consumption)'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define root view entity ZLAW_C_Travel_M
   /* provider contract transactional_query
   This is needed for the provider entity.. No need to define in the child entity/ies */
@@ -23,9 +24,14 @@ define root view entity ZLAW_C_Travel_M
       CreatedAt,
       LastChangedBy,
       LastChangedAt,
+      /* Adhoc Associations */
+      _Agency.Name        as AgencyName,
+      _Customer.FirstName as CustomerFirstName,
+      _Status._Text.Text  as StatusText : localized,
+
       /* Associations */
       _Agency,
-      _Booking: redirected to composition child ZLAW_C_Booking_M, // Needed to establish parent-child relationship
+      _Booking : redirected to composition child ZLAW_C_Booking_M, // Needed to establish parent-child relationship
       _Currency,
       _Customer,
       _Status

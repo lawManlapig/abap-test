@@ -1,0 +1,6 @@
+@EndUserText.label: 'test SD - Travel'
+define service ZLAW_Travel_SD {
+  expose ZLAW_C_Travel_M    as Travel;
+  expose ZLAW_C_Booking_M   as Booking;
+  expose ZLAW_C_BookSuppl_M as BookingSupplement;
+}
