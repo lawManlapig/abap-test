@@ -16,5 +16,5 @@ define view entity ZLAW_C_BookSuppl_M
       _Booking: redirected to parent ZLAW_C_Booking_M,
       _Supplement,
       _SupplementText,
-      _Travel
+      _Travel: redirected to ZLAW_C_Travel_M // To tell that this is part of the business object only
 }
