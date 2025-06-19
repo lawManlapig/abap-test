@@ -1,5 +1,14 @@
 @Metadata.layer: #CORE
 @Search.searchable: true
+@UI.headerInfo: {
+    typeName: 'Booking',
+    typeNamePlural: 'Bookings',
+    title: {
+        type: #STANDARD,
+        label: 'Booking',
+        value: 'BookingId'
+    }
+}
 annotate entity ZLAW_C_Booking_M with
 {
   // Facets
@@ -9,6 +18,13 @@ annotate entity ZLAW_C_Booking_M with
       position: 1,
       label: 'General Information',
       type: #IDENTIFICATION_REFERENCE
+  },{ 
+      id: 'BookingInformation',
+      purpose: #STANDARD,
+      position: 2,
+      label: 'Booking Supplements',
+      type: #LINEITEM_REFERENCE,
+      targetElement: '_BookingSupplement'
   }]
 
   @Search.defaultSearchElement: true

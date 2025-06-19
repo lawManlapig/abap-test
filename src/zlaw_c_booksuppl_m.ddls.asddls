@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'test CDS - Book Supplement (Consumption)'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define view entity ZLAW_C_BookSuppl_M
   as projection on ZLAW_I_BookSuppl_M
 {

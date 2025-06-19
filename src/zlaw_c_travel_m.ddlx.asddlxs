@@ -8,8 +8,9 @@
     title: {
         type: #STANDARD,
         label: 'Travel',
-        value: 'TravelId'
-    }
+        value: 'AgencyName'
+    },
+    description.value: 'TravelId'
 }
 annotate entity ZLAW_C_Travel_M with
 {
