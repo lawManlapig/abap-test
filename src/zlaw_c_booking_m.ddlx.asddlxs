@@ -18,7 +18,7 @@ annotate entity ZLAW_C_Booking_M with
       position: 1,
       label: 'General Information',
       type: #IDENTIFICATION_REFERENCE
-  },{ 
+  },{
       id: 'BookingInformation',
       purpose: #STANDARD,
       position: 2,
@@ -29,46 +29,104 @@ annotate entity ZLAW_C_Booking_M with
 
   @Search.defaultSearchElement: true
   TravelId;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 1 }],
     identification: [{ position: 1 }]
   }
   BookingId;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 2 }],
     identification: [{ position: 2 }]
   }
   BookingDate;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 3 }],
     identification: [{ position: 3 }]
   }
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+    name: '/DMO/I_Customer_StdVH',
+    element: 'CustomerID'
+  }}]
   CustomerId;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 4 }],
     identification: [{ position: 4 }]
   }
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+    name: '/DMO/I_Carrier_StdVH',
+    element: 'AirlineID'
+  }}]
   CarrierId;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 5 }],
     identification: [{ position: 5 }]
   }
+  @Consumption.valueHelpDefinition: [{
+      entity : {
+        name: '/DMO/I_Flight_StdVH',
+        element: 'ConnectionID'
+      },
+      additionalBinding: [{  // additionalBinding : Use this for a more filtered value help
+          element: 'ConnectionID', // Element from Target Value Help Entity
+          localElement: 'ConnectionId' // Element from CDS View
+      },{ 
+          element: 'AirlineID',
+          localElement: 'CarrierId' 
+      },{ 
+          element: 'CurrencyCode',
+          localElement: 'CurrencyCode'
+      },{ 
+          element: 'Price',
+          localElement: 'FlightPrice'
+      }]
+  }]
   ConnectionId;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 6 }],
     identification: [{ position: 6 }]
   }
+  @Consumption.valueHelpDefinition: [{
+      entity : {
+        name: '/DMO/I_Flight_StdVH',
+        element: 'FlightDate'
+      },
+      additionalBinding: [{  // additionalBinding : Use this for a more filtered value help
+          element: 'FlightDate', // Element from Target Value Help Entity
+          localElement: 'FlightDate' // Element from CDS View
+      },{ 
+          element: 'AirlineID',
+          localElement: 'CarrierId' 
+      },{ 
+          element: 'CurrencyCode',
+          localElement: 'CurrencyCode'
+      },{ 
+          element: 'Price',
+          localElement: 'FlightPrice'
+      }]
+  }]
   FlightDate;
-  @UI:{ 
+  @UI:{
     lineItem: [{ position: 7 }],
     identification: [{ position: 7 }]
   }
   FlightPrice;
-//  CurrencyCode;
-  @UI:{ 
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+   name: 'I_CurrencyStdVH',
+   element: 'Currency'
+  }}]
+  CurrencyCode;
+  @UI:{
     lineItem: [{ position: 8 }],
     identification: [{ position: 8 }]
   }
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+    name: '/DMO/I_Booking_Status_VH',
+    element: 'BookingStatus'
+  }}]
   BookingStatus;
   @UI.hidden: true
   LastChangedAt;
