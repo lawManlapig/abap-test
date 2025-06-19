@@ -2,25 +2,48 @@
 // UI Level Annotations lang pwede dito
 @Metadata.layer: #CORE
 @Search.searchable: true
+@UI.headerInfo: {
+    typeName: 'Travel',
+    typeNamePlural: 'Travels',
+    title: {
+        type: #STANDARD,
+        label: 'Travel',
+        value: 'TravelId'
+    }
+}
 annotate entity ZLAW_C_Travel_M with
 {
-  @UI.lineItem: [{ position: 1 }]
+  @UI.facet: [{
+      id: 'GeneralInformation',
+      purpose: #STANDARD,
+      position: 1,
+      label: 'General Information',
+      type: #IDENTIFICATION_REFERENCE
+  }]
+
+
+  @UI:{
+    lineItem: [{ position: 1 }],
+    identification: [{ position: 1 }]
+  }
   @Search.defaultSearchElement: true
   TravelId;
   @UI:{
     lineItem: [{ position: 2 }],
-    selectionField: [{ position: 1 }]
+    selectionField: [{ position: 1 }],
+    identification: [{ position: 2 }]
   }
   @Search.defaultSearchElement: true
   @Consumption.valueHelpDefinition: [{
   entity : {
     name: '/DMO/I_Agency_StdVH',
-    element: 'AgencyId'
+    element: 'AgencyID'
   }}]
   AgencyId;
   @UI:{
     lineItem: [{ position: 3 }],
-    selectionField: [{ position: 2 }]
+    selectionField: [{ position: 2 }],
+    identification: [{ position: 3 }]
   }
   @Search.defaultSearchElement: true
   @Consumption.valueHelpDefinition: [{
@@ -29,12 +52,21 @@ annotate entity ZLAW_C_Travel_M with
     element: 'CustomerID'
   }}]
   CustomerId;
-  @UI.lineItem: [{ position: 4 }]
+  @UI:{
+    lineItem: [{ position: 4 }],
+    identification: [{ position: 4 }]
+  }
   BeginDate;
-  @UI.lineItem: [{ position: 5 }]
+  @UI:{
+    lineItem: [{ position: 5 }],
+    identification: [{ position: 5 }]
+  }
   EndDate;
   //  BookingFee;
-  @UI.lineItem: [{ position: 6 }]
+  @UI:{
+    lineItem: [{ position: 6 }],
+    identification: [{ position: 6 }]
+  }
   TotalPrice;
   @Consumption.valueHelpDefinition: [{
   entity : {
@@ -45,19 +77,25 @@ annotate entity ZLAW_C_Travel_M with
   //  Description;
   @UI:{
     lineItem: [{ position: 7 }],
-    selectionField: [{ position: 3 }]
+    selectionField: [{ position: 3 }],
+    identification: [{ position: 7 }],
+    textArrangement: #TEXT_ONLY // Appearance of text in UI
   }
   @Search.defaultSearchElement: true
   @Consumption.valueHelpDefinition: [{
-entity : {
-  name: '/DMO/I_Overall_Status_VH',
-  element: 'OverallStatus'
-}}]
+  entity : {
+      name: '/DMO/I_Overall_Status_VH',
+      element: 'OverallStatus'
+  }}]
   OverallStatus;
-  //  CreatedBy;
-  //  CreatedAt;
-  //  LastChangedBy;
-  //  LastChangedAt;
+  @UI.hidden: true
+  CreatedBy;
+  @UI.hidden: true
+  CreatedAt;
+  @UI.hidden: true
+  LastChangedBy;
+  @UI.hidden: true
+  LastChangedAt;
   //  AgencyName;
   //  CustomerFirstName;
   //  StatusText;

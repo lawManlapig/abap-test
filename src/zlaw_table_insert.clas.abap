@@ -1,0 +1,20 @@
+CLASS zlaw_table_insert DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    INTERFACES if_oo_adt_classrun .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zlaw_table_insert IMPLEMENTATION.
+
+
+  METHOD if_oo_adt_classrun~main.
+  ENDMETHOD.
+ENDCLASS.
