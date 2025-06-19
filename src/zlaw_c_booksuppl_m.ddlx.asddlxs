@@ -1,4 +1,15 @@
 @Metadata.layer: #CORE
+@Search.searchable: true
+@UI.headerInfo: {
+    typeName: 'Booking Supplement',
+    typeNamePlural: 'Booking Supplements',
+    title: {
+        type: #STANDARD,
+        label: 'Booking Supplement',
+        value: 'BookingSupplementId'
+    },
+    description.value: 'TravelId'
+}
 annotate entity ZLAW_C_BookSuppl_M with
 {
   // Facets
@@ -10,21 +21,47 @@ annotate entity ZLAW_C_BookSuppl_M with
       type: #IDENTIFICATION_REFERENCE
   }]
 
+  @Search.defaultSearchElement: true
+  TravelId;
+  @Search.defaultSearchElement: true
+  BookingId;
   @UI:{
     lineItem: [{ position: 1 }],
     identification: [{ position: 1 }]
   }
   BookingSupplementId;
   @UI:{
-  lineItem: [{ position: 2 }],
-  identification: [{ position: 2 }]
+      lineItem: [{ position: 2 }],
+      identification: [{ position: 2 }]
   }
+  @Consumption.valueHelpDefinition: [{
+      entity : {
+           name: '/DMO/I_Supplement_StdVH',
+           element: 'SupplementID'
+      },
+      additionalBinding: [{ 
+           element: 'SupplementID',
+           localElement: 'SupplementId'
+      },{ 
+           element: 'Price',
+           localElement: 'Price' 
+      },{ 
+           element: 'CurrencyCode',
+           localElement: 'CurrencyCode' 
+      }]
+  }]
   SupplementId;
   @UI:{
-  lineItem: [{ position: 3 }],
-  identification: [{ position: 3 }]
+      lineItem: [{ position: 3 }],
+      identification: [{ position: 3 }]
   }
   Price;
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+   name: 'I_CurrencyStdVH',
+   element: 'Currency'
+  }}]
+  CurrencyCode;
   @UI.hidden: true
   LastChangedAt;
 }
