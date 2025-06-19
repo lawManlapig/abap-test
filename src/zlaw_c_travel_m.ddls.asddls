@@ -9,7 +9,9 @@ define root view entity ZLAW_C_Travel_M
   as projection on ZLAW_I_Travel_M
 {
   key TravelId,
+      @ObjectModel.text.element: [ 'AgencyName' ] // Can only be added here.. bawal sa MDE File
       AgencyId,
+      @ObjectModel.text.element: [ 'CustomerFirstName' ]
       CustomerId,
       BeginDate,
       EndDate,
@@ -19,6 +21,7 @@ define root view entity ZLAW_C_Travel_M
       TotalPrice,
       CurrencyCode,
       Description,
+      @ObjectModel.text.element: [ 'StatusText' ]
       OverallStatus,
       CreatedBy,
       CreatedAt,

@@ -1,11 +1,33 @@
+// Some annotations are not allowed here like ObjectModel
+// UI Level Annotations lang pwede dito
 @Metadata.layer: #CORE
+@Search.searchable: true
 annotate entity ZLAW_C_Travel_M with
 {
   @UI.lineItem: [{ position: 1 }]
+  @Search.defaultSearchElement: true
   TravelId;
-  @UI.lineItem: [{ position: 2 }]
+  @UI:{
+    lineItem: [{ position: 2 }],
+    selectionField: [{ position: 1 }]
+  }
+  @Search.defaultSearchElement: true
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+    name: '/DMO/I_Agency_StdVH',
+    element: 'AgencyId'
+  }}]
   AgencyId;
-  @UI.lineItem: [{ position: 3 }]
+  @UI:{
+    lineItem: [{ position: 3 }],
+    selectionField: [{ position: 2 }]
+  }
+  @Search.defaultSearchElement: true
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+    name: '/DMO/I_Customer_StdVH',
+    element: 'CustomerID'
+  }}]
   CustomerId;
   @UI.lineItem: [{ position: 4 }]
   BeginDate;
@@ -14,9 +36,23 @@ annotate entity ZLAW_C_Travel_M with
   //  BookingFee;
   @UI.lineItem: [{ position: 6 }]
   TotalPrice;
-  //  CurrencyCode;
+  @Consumption.valueHelpDefinition: [{
+  entity : {
+   name: 'I_CurrencyStdVH',
+   element: 'Currency'
+  }}]
+  CurrencyCode;
   //  Description;
-  @UI.lineItem: [{ position: 7 }]
+  @UI:{
+    lineItem: [{ position: 7 }],
+    selectionField: [{ position: 3 }]
+  }
+  @Search.defaultSearchElement: true
+  @Consumption.valueHelpDefinition: [{
+entity : {
+  name: '/DMO/I_Overall_Status_VH',
+  element: 'OverallStatus'
+}}]
   OverallStatus;
   //  CreatedBy;
   //  CreatedAt;
