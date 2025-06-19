@@ -1,6 +1,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'test CDS - Booking (Consumption)'
 @Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
 define view entity ZLAW_C_Booking_M
   as projection on ZLAW_I_Booking_M
 {

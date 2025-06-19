@@ -13,12 +13,20 @@
 }
 annotate entity ZLAW_C_Travel_M with
 {
+  // Facets
   @UI.facet: [{
       id: 'GeneralInformation',
       purpose: #STANDARD,
       position: 1,
       label: 'General Information',
       type: #IDENTIFICATION_REFERENCE
+  },{ 
+      id: 'BookingInformation',
+      purpose: #STANDARD,
+      position: 2,
+      label: 'Bookings',
+      type: #LINEITEM_REFERENCE,
+      targetElement: '_Booking'
   }]
 
 

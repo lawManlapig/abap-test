@@ -1,0 +1,59 @@
+@Metadata.layer: #CORE
+@Search.searchable: true
+annotate entity ZLAW_C_Booking_M with
+{
+  // Facets
+  @UI.facet: [{
+      id: 'GeneralInformation',
+      purpose: #STANDARD,
+      position: 1,
+      label: 'General Information',
+      type: #IDENTIFICATION_REFERENCE
+  }]
+
+  @Search.defaultSearchElement: true
+  TravelId;
+  @UI:{ 
+    lineItem: [{ position: 1 }],
+    identification: [{ position: 1 }]
+  }
+  BookingId;
+  @UI:{ 
+    lineItem: [{ position: 2 }],
+    identification: [{ position: 2 }]
+  }
+  BookingDate;
+  @UI:{ 
+    lineItem: [{ position: 3 }],
+    identification: [{ position: 3 }]
+  }
+  CustomerId;
+  @UI:{ 
+    lineItem: [{ position: 4 }],
+    identification: [{ position: 4 }]
+  }
+  CarrierId;
+  @UI:{ 
+    lineItem: [{ position: 5 }],
+    identification: [{ position: 5 }]
+  }
+  ConnectionId;
+  @UI:{ 
+    lineItem: [{ position: 6 }],
+    identification: [{ position: 6 }]
+  }
+  FlightDate;
+  @UI:{ 
+    lineItem: [{ position: 7 }],
+    identification: [{ position: 7 }]
+  }
+  FlightPrice;
+//  CurrencyCode;
+  @UI:{ 
+    lineItem: [{ position: 8 }],
+    identification: [{ position: 8 }]
+  }
+  BookingStatus;
+  @UI.hidden: true
+  LastChangedAt;
+}
