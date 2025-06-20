@@ -16,6 +16,7 @@ define view entity ZLAW_I_BookSuppl_M
       @Semantics.amount.currencyCode: 'CurrencyCode'
       price                 as Price,
       currency_code         as CurrencyCode,
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true
       last_changed_at       as LastChangedAt,
 
       /* Exposed Associations */
