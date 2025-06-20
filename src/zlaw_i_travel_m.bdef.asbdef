@@ -21,7 +21,7 @@ authorization master ( instance )
 }
 
 define behavior for ZLAW_I_Booking_M //alias <alias_name>
-implementation in class zcl_law_test2 unique
+implementation in class zcl_bp_booking_law_m unique
 persistent table zlaw_booking_m
 lock dependent by _Travel
 authorization dependent by _Travel
@@ -35,6 +35,7 @@ authorization dependent by _Travel
 }
 
 define behavior for ZLAW_I_BookSuppl_M //alias <alias_name>
+implementation in class zcl_bp_bksuppl_law_m unique
 persistent table zlaw_bksuppl_m
 lock dependent by _Travel
 authorization dependent by _Travel

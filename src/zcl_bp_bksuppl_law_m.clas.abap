@@ -1,0 +1,5 @@
+CLASS zcl_bp_bksuppl_law_m DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zlaw_i_travel_m.
+ENDCLASS.
+
+CLASS zcl_bp_bksuppl_law_m IMPLEMENTATION.
+ENDCLASS.
