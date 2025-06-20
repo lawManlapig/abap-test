@@ -1,15 +1,5 @@
-class ZCL_BP_BOOKING_LAW_M definition
-  public
-  abstract
-  final
-  create public .
-
-public section.
-protected section.
-private section.
+CLASS zcl_bp_booking_law_m DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zlaw_i_travel_m.
 ENDCLASS.
 
-
-
-CLASS ZCL_BP_BOOKING_LAW_M IMPLEMENTATION.
+CLASS zcl_bp_booking_law_m IMPLEMENTATION.
 ENDCLASS.
