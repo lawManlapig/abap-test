@@ -1,12 +1,16 @@
+// Managed : SAP S4 framework handles the CRUD activities
 managed implementation in class zbp_law_i_travel_m unique;
 strict ( 2 );
 
 define behavior for ZLAW_I_Travel_M //alias <alias_name>
 persistent table zlaw_travel_m
+
+// Entity Behavior Characteristics
 lock master
 authorization master ( instance )
 //etag master <field_name>
 {
+  // Entity Behavior Body
   create ( authorization : global );
   update;
   delete;
