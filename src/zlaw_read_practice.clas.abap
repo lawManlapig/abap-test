@@ -77,8 +77,54 @@ CLASS zlaw_read_practice IMPLEMENTATION.
 *    ENDIF.
 
     " READ ENTITIES DYNAMIC VERSION
-    DATA: lt_optab  TYPE abp_behv_retrievals_tab,
-          lt_travel TYPE TABLE FOR READ IMPORT ZLAW_I_Travel_M.
+    DATA: lt_optab          TYPE abp_behv_retrievals_tab,
+          lt_travel         TYPE TABLE FOR READ IMPORT ZLAW_I_Travel_M, " Filters
+          lt_travel_result  TYPE TABLE FOR READ RESULT ZLAW_I_Travel_M, " Result Table
+          lt_booking        TYPE TABLE FOR READ IMPORT ZLAW_I_Booking_M, " Filters
+          lt_booking_result TYPE TABLE FOR READ RESULT ZLAW_I_Booking_M. " Result Table
+
+    lt_travel = VALUE #( (  " Filters
+        %key-TravelId = '0000000010'
+
+        " Fields that you want to show
+        %control = VALUE #(
+            AgencyId = if_abap_behv=>mk-on
+            CustomerId = if_abap_behv=>mk-on
+            BeginDate = if_abap_behv=>mk-on
+        )
+    ) ).
+
+    lt_booking = VALUE #( (  " Filters
+        %key-TravelId = '0000000010'
+
+        " Fields that you want to show
+        %control = VALUE #(
+            BookingDate = if_abap_behv=>mk-on
+            BookingStatus = if_abap_behv=>mk-on
+            BookingId = if_abap_behv=>mk-on
+        )
+    ) ).
+
+    lt_optab = VALUE #( ( op = if_abap_behv=>op-r-read
+                          entity_name = 'ZLAW_I_TRAVEL_M' " Need all CAPS
+                          instances = REF #( lt_travel )
+                          results = REF #( lt_travel_result ) )
+                        ( op = if_abap_behv=>op-r-read_ba
+                          entity_name = 'ZLAW_I_TRAVEL_M' " Need all CAPS
+                          sub_name = '_BOOKING' " Associated Entity
+                          instances = REF #( lt_booking )
+                          results = REF #( lt_booking_result ) ) ).
+
+    READ ENTITIES
+    OPERATIONS lt_optab
+    FAILED DATA(lt_failed_dynamic).
+
+    IF lt_failed_dynamic IS NOT INITIAL.
+      out->write( 'Read Failed..' ).
+    ELSE.
+      out->write( lt_travel_result ).
+      out->write( lt_booking_result ).
+    ENDIF.
 
   ENDMETHOD.
 ENDCLASS.
