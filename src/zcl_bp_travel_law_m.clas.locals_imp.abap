@@ -8,6 +8,9 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING REQUEST requested_authorizations FOR ZLAW_I_Travel_M RESULT result.
 
     " Hander for Numbering
+    METHODS earlynumbering_cba_Booking FOR NUMBERING
+      IMPORTING entities FOR CREATE ZLAW_I_Travel_M\_Booking.
+
     METHODS earlynumbering_create FOR NUMBERING
       IMPORTING entities FOR CREATE ZLAW_I_Travel_M.
 
@@ -77,6 +80,9 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
         TravelId = lv_current_number
       ) TO mapped-zlaw_i_travel_m.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD earlynumbering_cba_Booking.
   ENDMETHOD.
 
 ENDCLASS.

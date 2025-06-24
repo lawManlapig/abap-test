@@ -49,11 +49,11 @@ lock dependent by _Travel
 authorization dependent by _Travel
 //etag dependent by _Travel // Can be used if you have parent CDS
 etag master LastChangedAt
+early numbering
 {
   update;
   delete;
-  //  field ( readonly ) TravelId, BookingId;
-  field ( readonly ) TravelId;
+  field ( readonly ) TravelId, BookingId;
   association _Travel;
   association _BookingSupplement { create; }
 
@@ -80,11 +80,11 @@ persistent table zlaw_bksuppl_m
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
+early numbering
 {
   update;
   delete;
-  //  field ( readonly ) TravelId, BookingId, BookingSupplementId;
-  field ( readonly ) TravelId, BookingId;
+  field ( readonly ) TravelId, BookingId, BookingSupplementId;
   association _Travel;
   association _Booking;
 
