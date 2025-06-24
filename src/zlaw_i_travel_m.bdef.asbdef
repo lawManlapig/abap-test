@@ -11,12 +11,13 @@ persistent table zlaw_travel_m // Dito papasok yung data siyempre XD
 lock master
 authorization master ( instance )
 etag master LastChangedAt // Field that will be checked for ETag
+early numbering // Early Numbering: Auto generated ang key fields as soon as mag start ka ng transaction
 {
   // Entity Behavior Body
   create ( authorization : global );
   update;
   delete;
-  //  field ( readonly ) TravelId;
+  field ( readonly ) TravelId; // Recommended coz we want the Primary Key to be auto-generated & non-editable :)
   association _Booking { create; }
 
   // Mapping fields ---
