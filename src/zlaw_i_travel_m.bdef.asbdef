@@ -10,7 +10,7 @@ persistent table zlaw_travel_m // Dito papasok yung data siyempre XD
 // Entity Behavior Characteristics
 lock master
 authorization master ( instance )
-etag master LastChangedAt
+etag master LastChangedAt // Field that will be checked for ETag
 {
   // Entity Behavior Body
   create ( authorization : global );
