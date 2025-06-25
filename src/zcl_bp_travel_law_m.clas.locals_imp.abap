@@ -6,6 +6,17 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR ZLAW_I_Travel_M RESULT result.
+    METHODS acceptTravel FOR MODIFY
+      IMPORTING keys FOR ACTION ZLAW_I_Travel_M~acceptTravel RESULT result.
+
+    METHODS copyTravel FOR MODIFY
+      IMPORTING keys FOR ACTION ZLAW_I_Travel_M~copyTravel.
+
+    METHODS recalculateTotalPrice FOR MODIFY
+      IMPORTING keys FOR ACTION ZLAW_I_Travel_M~recalculateTotalPrice.
+
+    METHODS rejectTravel FOR MODIFY
+      IMPORTING keys FOR ACTION ZLAW_I_Travel_M~rejectTravel RESULT result.
 
     " Hander for Numbering
     METHODS earlynumbering_cba_Booking FOR NUMBERING
@@ -133,6 +144,17 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
       ENDLOOP. " --> LOOP AT entities.. (nested)
     ENDLOOP. " --> LOOP AT entities..
 
+  ENDMETHOD.
+  METHOD acceptTravel.
+  ENDMETHOD.
+
+  METHOD copyTravel.
+  ENDMETHOD.
+
+  METHOD recalculateTotalPrice.
+  ENDMETHOD.
+
+  METHOD rejectTravel.
   ENDMETHOD.
 
 ENDCLASS.

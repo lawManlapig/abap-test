@@ -20,6 +20,19 @@ early numbering // Early Numbering: Auto generated ang key fields as soon as mag
   field ( readonly ) TravelId; // Recommended coz we want the Primary Key to be auto-generated & non-editable :)
   association _Booking { create; }
 
+  // Instance Actions : Used to modify existing view instance
+  action acceptTravel // This is how to define an action
+  result[1] // Return the result to the exporting parameter with cardinality of 1
+  $self; // We want to return the instance.. so ganyan siya hahah
+
+  action rejectTravel result[1] $self;
+
+  // Factory Actions : used to create new instance of view
+  factory action copyTravel [1];
+
+  // Internal Actions : Internal Actions (sa loob ng bdef lang)
+  internal action recalculateTotalPrice;
+
   // Mapping fields ---
   /* Use this if you have different field names from your
    peristent table and CDS Interface View */
