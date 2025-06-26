@@ -38,6 +38,15 @@ early numbering // Early Numbering: Auto generated ang key fields as soon as mag
   // Internal Actions : Internal Actions (sa loob ng bdef lang)
   internal action recalculateTotalPrice;
 
+  // Validations
+  validation validateCustomer // Name of your validation
+  on save {
+    create; // Instance Operation
+    field CustomerID; // Field to be checked
+  }
+
+  validation validateDates on save { create; field BeginDate, EndDate; }
+
   // Mapping fields ---
   /* Use this if you have different field names from your
    peristent table and CDS Interface View */

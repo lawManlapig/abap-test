@@ -22,6 +22,12 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR ZLAW_I_Travel_M RESULT result.
 
+    " Validation Handler
+    METHODS validatecustomer FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zlaw_i_travel_m~validatecustomer.
+    METHODS validatedates FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zlaw_i_travel_m~validatedates.
+
     " Hander for Numbering
     METHODS earlynumbering_cba_Booking FOR NUMBERING
       IMPORTING entities FOR CREATE ZLAW_I_Travel_M\_Booking.
@@ -325,6 +331,77 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
                                                    THEN if_abap_behv=>fc-o-disabled
                                                    ELSE if_abap_behv=>fc-o-enabled ) )
     ).
+  ENDMETHOD.
+
+  METHOD validateCustomer.
+    " Read key
+    READ ENTITY IN LOCAL MODE ZLAW_I_Travel_M
+    FIELDS ( CustomerId )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_travel_read).
+
+    DATA: lt_customer TYPE SORTED TABLE OF /dmo/customer WITH UNIQUE KEY customer_id.
+
+    lt_customer = CORRESPONDING #( lt_travel_read DISCARDING DUPLICATES MAPPING customer_id = CustomerId ).
+    DELETE lt_customer WHERE customer_id IS INITIAL.
+
+    SELECT FROM /dmo/customer
+    FIELDS customer_id
+    FOR ALL ENTRIES IN @lt_customer
+    WHERE customer_id = @lt_customer-customer_id
+    INTO TABLE @DATA(lt_customer_db).
+
+    " Check if field is blank
+    LOOP AT lt_travel_read INTO DATA(ls_travel).
+      IF ls_travel-CustomerId IS INITIAL OR NOT
+         line_exists( lt_customer_db[ customer_id = ls_travel-CustomerId ] ).
+
+        " Error Message
+        APPEND VALUE #(
+            %tky = ls_travel-%tky
+        ) TO failed-zlaw_i_travel_m.
+
+        APPEND VALUE #(
+            %tky = ls_travel-%tky
+            %msg = NEW /dmo/cm_flight_messages(
+                          textid      =  /dmo/cm_flight_messages=>customer_unkown
+                          customer_id = ls_travel-CustomerId
+                          severity    = if_abap_behv_message=>severity-error )
+            %element-CustomerId = if_abap_behv=>mk-on " Mark the field to prompt error from
+        ) TO reported-zlaw_i_travel_m.
+      ENDIF.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD validateDates.
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    FIELDS ( BeginDate EndDate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_travels).
+
+    LOOP AT lt_travels INTO DATA(ls_travels).
+      " End Date before Begin Date
+      IF ls_travels-BeginDate > ls_travels-EndDate.
+        APPEND VALUE #(
+          %tky = ls_travels-%tky
+        ) TO failed-zlaw_i_travel_m.
+
+        APPEND VALUE #(
+          %tky = ls_travels-%tky
+          %msg = NEW /dmo/cm_flight_messages(
+                        textid      =  /dmo/cm_flight_messages=>begin_date_bef_end_date
+                        begin_date  = ls_travels-BeginDate
+                        end_date    = ls_travels-EndDate
+                        travel_id   = ls_travels-TravelId
+                        severity    = if_abap_behv_message=>severity-error )
+          %element-BeginDate = if_abap_behv=>mk-on
+          %element-EndDate = if_abap_behv=>mk-on
+        ) TO reported-zlaw_i_travel_m.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.
