@@ -17,6 +17,8 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS rejectTravel FOR MODIFY
       IMPORTING keys FOR ACTION ZLAW_I_Travel_M~rejectTravel RESULT result.
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR ZLAW_I_Travel_M RESULT result.
 
     " Hander for Numbering
     METHODS earlynumbering_cba_Booking FOR NUMBERING
@@ -295,6 +297,9 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
         %tky = ls_read_result-%tky
         %param = ls_read_result
     ) ).
+  ENDMETHOD.
+
+  METHOD get_instance_features.
   ENDMETHOD.
 
 ENDCLASS.
