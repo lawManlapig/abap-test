@@ -67,6 +67,19 @@ CLASS lhc_zlaw_i_booking_m IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_instance_features.
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    BY \_Booking
+    FIELDS ( TravelId BookingStatus )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_booking_read).
+
+    result = VALUE #( FOR ls_booking IN lt_booking_read
+                      ( %tky = ls_booking-%tky
+                        %features-%assoc-_BookingSupplement = COND #( WHEN ls_booking-BookingStatus = 'X'
+                                                   THEN if_abap_behv=>fc-o-disabled
+                                                   ELSE if_abap_behv=>fc-o-enabled ) ) ).
   ENDMETHOD.
 
 ENDCLASS.

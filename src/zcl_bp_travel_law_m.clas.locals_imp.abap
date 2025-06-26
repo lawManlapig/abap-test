@@ -17,6 +17,8 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS rejectTravel FOR MODIFY
       IMPORTING keys FOR ACTION ZLAW_I_Travel_M~rejectTravel RESULT result.
+
+    " Features handler
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR ZLAW_I_Travel_M RESULT result.
 
@@ -300,6 +302,29 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_instance_features.
+    " Read the importing parameters
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    FIELDS ( TravelId OverallStatus )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_travel_read_result).
+
+    result = VALUE #(
+        FOR ls_travel_read IN lt_travel_read_result
+        ( %tky = ls_travel_read-%tky
+          " Feature Control for Actions
+          %features-%action-acceptTravel = COND #( WHEN ls_travel_read-OverallStatus = 'A'
+                                                   THEN if_abap_behv=>fc-o-disabled
+                                                   ELSE if_abap_behv=>fc-o-enabled )
+          %features-%action-rejectTravel = COND #( WHEN ls_travel_read-OverallStatus = 'X'
+                                                   THEN if_abap_behv=>fc-o-disabled
+                                                   ELSE if_abap_behv=>fc-o-enabled )
+          " Feature Control for Associations
+          %features-%assoc-_Booking = COND #( WHEN ls_travel_read-OverallStatus = 'X'
+                                                   THEN if_abap_behv=>fc-o-disabled
+                                                   ELSE if_abap_behv=>fc-o-enabled ) )
+    ).
   ENDMETHOD.
 
 ENDCLASS.
