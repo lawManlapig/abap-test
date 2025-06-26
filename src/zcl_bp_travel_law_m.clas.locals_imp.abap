@@ -143,7 +143,28 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
     ENDLOOP. " --> LOOP AT entities..
 
   ENDMETHOD.
+
   METHOD acceptTravel.
+    MODIFY ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    UPDATE FIELDS ( OverallStatus LastChangedAt )
+    WITH VALUE #( FOR ls_keys IN keys ( %tky = ls_keys-%tky
+                                        OverallStatus = 'A'
+                                        LastChangedAt = cl_abap_context_info=>get_system_date( ) ) ).
+
+    " Check by Reading Entity
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_read_result).
+
+    result = VALUE #( FOR ls_read_result IN lt_read_result (
+        %tky = ls_read_result-%tky
+        %param = ls_read_result
+    ) ).
+
   ENDMETHOD.
 
   METHOD copyTravel.
@@ -255,6 +276,25 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD rejectTravel.
+    MODIFY ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    UPDATE FIELDS ( OverallStatus LastChangedAt )
+    WITH VALUE #( FOR ls_keys IN keys ( %tky = ls_keys-%tky
+                                        OverallStatus = 'X'
+                                        LastChangedAt = cl_abap_context_info=>get_system_date(  ) ) ).
+
+    " Check by Reading Entity
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_read_result).
+
+    result = VALUE #( FOR ls_read_result IN lt_read_result (
+        %tky = ls_read_result-%tky
+        %param = ls_read_result
+    ) ).
   ENDMETHOD.
 
 ENDCLASS.

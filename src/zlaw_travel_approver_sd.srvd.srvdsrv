@@ -1,0 +1,5 @@
+@EndUserText.label: 'test SD - Travel Approver'
+define service ZLAW_TRAVEL_APPROVER_SD {
+  expose ZLAW_C_Travel_Approver_M  as TravelApprover;
+  expose ZLAW_C_Booking_Approver_M as BookingApprover;
+}
