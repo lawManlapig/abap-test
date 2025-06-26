@@ -32,7 +32,15 @@ annotate entity ZLAW_C_Travel_M with
 
 
   @UI:{
-    lineItem: [{ position: 1 }],
+    lineItem: [
+        { position: 1 },
+        // Add your Action here.. if you want it in the main page
+        { 
+            type: #FOR_ACTION,
+            dataAction: 'copyTravel',
+            label: 'Copy Travel' 
+        } 
+    ],
     identification: [{ position: 1 }]
   }
   @Search.defaultSearchElement: true

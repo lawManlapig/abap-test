@@ -8,6 +8,9 @@ use etag
   use update;
   use delete;
 
+  // Expose your action here :) This came from the BDef
+  use action copyTravel;
+
   use association _Booking { create; }
 }
 

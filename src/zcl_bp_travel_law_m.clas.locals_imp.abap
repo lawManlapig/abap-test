@@ -132,13 +132,11 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
       LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities_draft>)
       USING KEY entity WHERE TravelId = <lfs_entities>-TravelId.
         LOOP AT <lfs_entities>-%target ASSIGNING FIELD-SYMBOL(<lfs_booking_details>).
+          APPEND CORRESPONDING #( <lfs_booking_details> ) TO mapped-zlaw_i_booking_m
+          ASSIGNING FIELD-SYMBOL(<lfs_booking_new>).
           IF <lfs_booking_details>-BookingId IS INITIAL.
             lv_max_booking += 10.
-
-            APPEND CORRESPONDING #( <lfs_booking_details> ) TO mapped-zlaw_i_booking_m
-            ASSIGNING FIELD-SYMBOL(<lfs_booking_new>).
             <lfs_booking_new>-BookingId = lv_max_booking.
-
           ENDIF.
         ENDLOOP. " --> LOOP AT <lfs_entities>-%target
       ENDLOOP. " --> LOOP AT entities.. (nested)
@@ -149,6 +147,108 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD copyTravel.
+
+    ASSIGN keys[ %cid = '' ]
+    TO FIELD-SYMBOL(<lfs_blank_cid>).
+
+    IF sy-subrc IS NOT INITIAL.
+      " data
+      DATA: lt_travel                 TYPE TABLE FOR CREATE ZLAW_I_Travel_M,
+            lt_booking_cba            TYPE TABLE FOR CREATE ZLAW_I_Travel_M\_Booking,
+            lt_booking_supplement_cba TYPE TABLE FOR CREATE ZLAW_I_Booking_M\_BookingSupplement.
+
+      " Read existing
+      READ ENTITIES OF ZLAW_I_Travel_M
+      IN LOCAL MODE
+      ENTITY ZLAW_I_Travel_M
+      ALL FIELDS WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_travel_read)
+      FAILED DATA(lt_travel_failed).
+
+      READ ENTITIES OF ZLAW_I_Travel_M
+      IN LOCAL MODE
+      ENTITY ZLAW_I_Travel_M
+      BY \_Booking
+      ALL FIELDS WITH CORRESPONDING #( lt_travel_read )
+      RESULT DATA(lt_booking_read).
+
+      READ ENTITIES OF ZLAW_I_Travel_M
+      IN LOCAL MODE
+      ENTITY ZLAW_I_Booking_M
+      BY \_BookingSupplement
+      ALL FIELDS WITH CORRESPONDING #( lt_booking_read )
+      RESULT DATA(lt_booking_supplement_read).
+
+      LOOP AT lt_travel_read ASSIGNING FIELD-SYMBOL(<lfs_travel_read>).
+*        APPEND INITIAL LINE TO lt_travel ASSIGNING FIELD-SYMBOL(<lfs_travel_new>).
+*        " Copy the data from existing
+*        <lfs_travel_new>-%cid = keys[ KEY entity TravelId = <lfs_travel_read>-TravelId ]-%cid.
+*        <lfs_travel_new>-%data = CORRESPONDING #( <lfs_travel_read> EXCEPT TravelId ).
+
+        " Copy the values from existing
+        APPEND VALUE #(
+            %cid = keys[ KEY entity TravelId = <lfs_travel_read>-TravelId ]-%cid
+            %data = CORRESPONDING #( <lfs_travel_read> EXCEPT TravelId )
+        ) TO lt_travel ASSIGNING FIELD-SYMBOL(<lfs_travel_new>).
+
+        " Manipulate some values if needed
+        <lfs_travel_new>-BeginDate = cl_abap_context_info=>get_system_date(  ).
+        <lfs_travel_new>-EndDate = cl_abap_context_info=>get_system_date(  ) + 30.
+        <lfs_travel_new>-OverallStatus = 'O'.
+
+        APPEND VALUE #( %cid_ref = <lfs_travel_new>-%cid )
+        TO lt_booking_cba ASSIGNING FIELD-SYMBOL(<lfs_booking_new>).
+
+        LOOP AT lt_booking_read ASSIGNING FIELD-SYMBOL(<lfs_booking_read>)
+        USING KEY entity
+        WHERE TravelId = <lfs_travel_read>-TravelId.
+          APPEND VALUE #(
+              %cid = <lfs_travel_new>-%cid && <lfs_booking_read>-BookingId
+              %data = CORRESPONDING #( <lfs_booking_read> EXCEPT TravelId )
+          ) TO <lfs_booking_new>-%target ASSIGNING FIELD-SYMBOL(<lfs_booking_new2>).
+
+          " Manipulate values
+          <lfs_booking_new2>-BookingStatus = 'N'.
+
+          APPEND VALUE #( %cid_ref = <lfs_booking_new2>-%cid )
+          TO lt_booking_supplement_cba ASSIGNING FIELD-SYMBOL(<lfs_booking_supp_new>).
+
+          LOOP AT lt_booking_supplement_read ASSIGNING FIELD-SYMBOL(<lfs_bk_supp_new>)
+          USING KEY entity
+          WHERE BookingId = <lfs_booking_read>-BookingId
+          AND   TravelId = <lfs_travel_read>-TravelId.
+
+            APPEND VALUE #(
+                %cid = <lfs_travel_new>-%cid && <lfs_booking_read>-BookingId && <lfs_bk_supp_new>-BookingSupplementId
+                %data = CORRESPONDING #( <lfs_bk_supp_new> EXCEPT TravelId BookingId )
+            ) TO <lfs_booking_supp_new>-%target.
+
+          ENDLOOP. " --> LOOP AT lt_booking_supplement_read ..
+        ENDLOOP. " --> LOOP AT lt_booking_read ..
+      ENDLOOP. " --> LOOP AT lt_travel_read ..
+
+      " MODIFY ENTITY
+      MODIFY ENTITIES OF ZLAW_I_Travel_M
+      IN LOCAL MODE
+      ENTITY ZLAW_I_Travel_M
+      CREATE FIELDS ( AgencyId CustomerId BeginDate EndDate BookingFee TotalPrice CurrencyCode OverallStatus Description )
+      WITH lt_travel
+
+      ENTITY ZLAW_I_Travel_M
+      CREATE BY \_Booking
+      FIELDS ( BookingId BookingDate CustomerId CarrierId ConnectionId FlightDate FlightPrice CurrencyCode BookingStatus )
+      WITH lt_booking_cba
+
+      ENTITY ZLAW_I_Booking_M
+      CREATE BY \_BookingSupplement
+      FIELDS ( BookingSupplementId SupplementId Price CurrencyCode )
+      WITH lt_booking_supplement_cba
+
+      MAPPED DATA(lt_mapped).
+
+      " Send to Front-End
+      mapped-zlaw_i_travel_m = lt_mapped-zlaw_i_travel_m.
+    ENDIF.
   ENDMETHOD.
 
   METHOD recalculateTotalPrice.

@@ -50,13 +50,12 @@ CLASS lhc_zlaw_i_booking_m IMPLEMENTATION.
       LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities_draft>)
       USING KEY entity WHERE %tky = <lfs_entities>-%tky.
         LOOP AT <lfs_entities>-%target ASSIGNING FIELD-SYMBOL(<lfs_booking_details>).
+          APPEND CORRESPONDING #( <lfs_booking_details> ) TO mapped-zlaw_i_booksuppl_m
+          ASSIGNING FIELD-SYMBOL(<lfs_booking_new>).
+
           IF <lfs_booking_details>-BookingSupplementId IS INITIAL.
             lv_max_booking_supplement += 1.
-
-            APPEND CORRESPONDING #( <lfs_booking_details> ) TO mapped-zlaw_i_booksuppl_m
-            ASSIGNING FIELD-SYMBOL(<lfs_booking_new>).
             <lfs_booking_new>-BookingSupplementId = lv_max_booking_supplement.
-
           ENDIF.
         ENDLOOP. " --> LOOP AT <lfs_entities>-%target
       ENDLOOP. " --> LOOP AT entities.. (nested)

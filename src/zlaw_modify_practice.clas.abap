@@ -55,7 +55,7 @@ CLASS zlaw_modify_practice IMPLEMENTATION.
 *    FAILED FINAL(lt_failed2) " FINAL means the table will be read-only
 *    MAPPED FINAL(lt_mapped2)
 *    REPORTED FINAL(lt_reported2).
-*
+
 *    IF lt_failed IS NOT INITIAL.
 *      out->write( lt_failed ).
 *    ELSE.
