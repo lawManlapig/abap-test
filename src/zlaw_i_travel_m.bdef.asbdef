@@ -20,17 +20,17 @@ early numbering // Early Numbering: Auto generated ang key fields as soon as mag
   field ( readonly ) TravelId, CreatedBy, CreatedAt, LastChangedAt, LastChangedBy; // Recommended coz we want the Primary Key to be auto-generated & non-editable :)
 
   /* Feature Control for Mandatory: pag di ka nag lagay ng instance,
-     ang gagawin nito, mag lalagay lang ng indicator na mandatory siya..
-     you have to code pa yung validation logic */
+   ang gagawin nito, mag lalagay lang ng indicator na mandatory siya..
+   you have to code pa yung validation logic */
   field ( mandatory ) AgencyId, BeginDate, CustomerId, EndDate, OverallStatus, BookingFee, CurrencyCode;
   association _Booking { create ( features : instance ); }
 
   // Instance Actions : Used to modify existing view instance
   action ( features : instance ) acceptTravel // This is how to define an action + Feature Control
-  result[1] // Return the result to the exporting parameter with cardinality of 1
+    result [1] // Return the result to the exporting parameter with cardinality of 1
   $self; // We want to return the instance.. so ganyan siya hahah
 
-  action ( features : instance ) rejectTravel result[1] $self;
+  action ( features : instance ) rejectTravel result [1] $self;
 
   // Factory Actions : used to create new instance of view
   factory action copyTravel [1];
@@ -40,12 +40,16 @@ early numbering // Early Numbering: Auto generated ang key fields as soon as mag
 
   // Validations
   validation validateCustomer // Name of your validation
-  on save {
+  on save
+  {
     create; // Instance Operation
     field CustomerID; // Field to be checked
   }
 
   validation validateDates on save { create; field BeginDate, EndDate; }
+
+  // Determination
+  determination calculateTotalPrice on modify { create; field BookingFee, CurrencyCode; }
 
   // Mapping fields ---
   /* Use this if you have different field names from your
@@ -101,6 +105,8 @@ early numbering
       BookingStatus = booking_status;
       LastChangedAt = last_changed_at;
     }
+
+  determination calculateTotalPrice on modify { create; field FlightPrice, CurrencyCode; }
 }
 
 define behavior for ZLAW_I_BookSuppl_M //alias <alias_name>
@@ -129,4 +135,6 @@ early numbering
       CurrencyCode        = currency_code;
       LastChangedAt       = last_changed_at;
     }
+
+  determination calculateTotalPrice on modify { create; field Price, CurrencyCode; }
 }

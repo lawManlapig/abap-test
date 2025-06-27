@@ -6,6 +6,8 @@ CLASS lhc_zlaw_i_booking_m DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING entities FOR CREATE ZLAW_I_Booking_M\_Bookingsupplement.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR ZLAW_I_Booking_M RESULT result.
+    METHODS calculatetotalprice FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zlaw_i_booking_m~calculatetotalprice.
 
 ENDCLASS.
 
@@ -80,6 +82,19 @@ CLASS lhc_zlaw_i_booking_m IMPLEMENTATION.
                         %features-%assoc-_BookingSupplement = COND #( WHEN ls_booking-BookingStatus = 'X'
                                                    THEN if_abap_behv=>fc-o-disabled
                                                    ELSE if_abap_behv=>fc-o-enabled ) ) ).
+  ENDMETHOD.
+
+  METHOD calculateTotalPrice.
+    DATA: lt_travel TYPE SORTED TABLE OF ZLAW_I_Travel_M WITH UNIQUE KEY TravelId.
+
+    lt_travel = CORRESPONDING #( keys DISCARDING DUPLICATES MAPPING TravelId = TravelId ).
+
+    " Get the internal function
+    MODIFY ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    EXECUTE recalculateTotalPrice " Call the Action
+    FROM CORRESPONDING #( lt_travel ).
   ENDMETHOD.
 
 ENDCLASS.

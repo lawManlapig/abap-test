@@ -21,7 +21,7 @@ annotate entity ZLAW_C_Travel_M with
       position: 1,
       label: 'General Information',
       type: #IDENTIFICATION_REFERENCE
-  },{ 
+  },{
       id: 'BookingInformation',
       purpose: #STANDARD,
       position: 2,
@@ -35,11 +35,11 @@ annotate entity ZLAW_C_Travel_M with
     lineItem: [
         { position: 1 },
         // Add your Action here.. if you want it in the main page
-        { 
+        {
             type: #FOR_ACTION,
             dataAction: 'copyTravel',
-            label: 'Copy Travel' 
-        } 
+            label: 'Copy Travel'
+        }
     ],
     identification: [{ position: 1 }]
   }
@@ -79,7 +79,11 @@ annotate entity ZLAW_C_Travel_M with
     identification: [{ position: 5 }]
   }
   EndDate;
-  //  BookingFee;
+  @UI:{
+    lineItem: [{ position: 5.1 }],
+    identification: [{ position: 5.1 }]
+  }
+  BookingFee;
   @UI:{
     lineItem: [{ position: 6 }],
     identification: [{ position: 6 }]

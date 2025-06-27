@@ -28,6 +28,10 @@ CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS validatedates FOR VALIDATE ON SAVE
       IMPORTING keys FOR zlaw_i_travel_m~validatedates.
 
+    " Determination Handler
+    METHODS calculatetotalprice FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zlaw_i_travel_m~calculatetotalprice.
+
     " Hander for Numbering
     METHODS earlynumbering_cba_Booking FOR NUMBERING
       IMPORTING entities FOR CREATE ZLAW_I_Travel_M\_Booking.
@@ -283,6 +287,89 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD recalculateTotalPrice.
+    TYPES: BEGIN OF lty_total,
+             price TYPE /dmo/total_price,
+             curr  TYPE /dmo/currency_code,
+           END OF lty_total.
+
+    DATA: lt_total TYPE STANDARD TABLE OF lty_total.
+
+    " Read the entity (MAIN)
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    FIELDS ( BookingFee CurrencyCode )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_travel_result).
+
+    " Read by Association (Child)
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    BY \_Booking
+    FIELDS ( FlightPrice CurrencyCode )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_booking_result).
+
+    " Read by Association (Child of Child)
+    READ ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Booking_M
+    BY \_BookingSupplement
+    FIELDS ( Price CurrencyCode )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_booking_supplement_result).
+
+    LOOP AT lt_travel_result ASSIGNING FIELD-SYMBOL(<lfs_travel>).
+      lt_total = VALUE #( ( price = <lfs_travel>-BookingFee curr = <lfs_travel>-CurrencyCode ) ).
+
+      LOOP AT lt_booking_result ASSIGNING FIELD-SYMBOL(<lfs_booking>)
+      USING KEY entity
+      WHERE TravelId = <lfs_travel>-TravelId
+      AND CurrencyCode IS NOT INITIAL.
+        APPEND VALUE #(
+            price = <lfs_booking>-FlightPrice
+            curr  = <lfs_booking>-CurrencyCode
+        ) TO lt_total.
+
+        LOOP AT lt_booking_supplement_result ASSIGNING FIELD-SYMBOL(<lfs_booking_supplement>)
+        USING KEY entity
+        WHERE TravelId = <lfs_booking>-TravelId
+        AND BookingId = <lfs_booking>-BookingId
+        AND CurrencyCode IS NOT INITIAL.
+          APPEND VALUE #(
+              price = <lfs_booking_supplement>-Price
+              curr  = <lfs_booking_supplement>-CurrencyCode
+          ) TO lt_total.
+        ENDLOOP.
+      ENDLOOP.
+
+      LOOP AT lt_total ASSIGNING FIELD-SYMBOL(<lfs_total>).
+
+        IF <lfs_total>-curr = <lfs_travel>-CurrencyCode.
+          DATA(lv_converted_price) = <lfs_total>-price.
+        ELSE.
+          CALL METHOD /dmo/cl_flight_amdp=>convert_currency
+            EXPORTING
+              iv_amount               = <lfs_total>-price
+              iv_currency_code_source = <lfs_total>-curr
+              iv_currency_code_target = <lfs_travel>-CurrencyCode
+              iv_exchange_rate_date   = cl_abap_context_info=>get_system_date( )
+            IMPORTING
+              ev_amount               = lv_converted_price.
+        ENDIF.
+
+        " Total Price
+        <lfs_travel>-TotalPrice += lv_converted_price.
+      ENDLOOP. " --> LOOP AT lt_total..
+    ENDLOOP. " --> LOOP AT lt_travel_result..
+
+    " Modify
+    MODIFY ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    UPDATE FIELDS ( TotalPrice )
+    WITH CORRESPONDING #( lt_travel_result ).
   ENDMETHOD.
 
   METHOD rejectTravel.
@@ -371,7 +458,6 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
         ) TO reported-zlaw_i_travel_m.
       ENDIF.
     ENDLOOP.
-
   ENDMETHOD.
 
   METHOD validateDates.
@@ -402,6 +488,17 @@ CLASS lhc_ZLAW_I_Travel_M IMPLEMENTATION.
         ) TO reported-zlaw_i_travel_m.
       ENDIF.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD calculateTotalPrice.
+
+    " Get the internal function
+    MODIFY ENTITIES OF ZLAW_I_Travel_M
+    IN LOCAL MODE
+    ENTITY ZLAW_I_Travel_M
+    EXECUTE recalculateTotalPrice " Call the Action
+    FROM CORRESPONDING #( keys ).
+
   ENDMETHOD.
 
 ENDCLASS.
