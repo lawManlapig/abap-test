@@ -1,3 +1,74 @@
+
+* Since we added the additional save in the BDef, it will create the
+* new class for Save (CL_ABAP_BEHAVIOR_SAVER). Dito nilalagay yung logic
+* natin for saving... :)
+CLASS lsc_zlaw_i_travel_m DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zlaw_i_travel_m IMPLEMENTATION.
+
+  METHOD save_modified.
+    DATA: lt_log_table   TYPE STANDARD TABLE OF zlaw_log_trv_m,
+          lt_log_table_c TYPE STANDARD TABLE OF zlaw_log_trv_m.
+
+    IF create-zlaw_i_travel_m IS NOT INITIAL.
+      lt_log_table = CORRESPONDING #( create-zlaw_i_travel_m ).
+
+      LOOP AT lt_log_table ASSIGNING FIELD-SYMBOL(<lfs_log>).
+        <lfs_log>-changing_operation = 'CREATE'.
+        GET TIME STAMP FIELD <lfs_log>-created_at.
+
+        ASSIGN create-zlaw_i_travel_m[ KEY entity TravelId = <lfs_log>-travelid ]
+        TO FIELD-SYMBOL(<lfs_create_travel>).
+        IF sy-subrc IS INITIAL.
+          IF <lfs_create_travel>-%control-BookingFee = cl_abap_behv=>flag_changed.
+            <lfs_log>-changed_field_name = 'Booking Fee'.
+            <lfs_log>-changed_value = <lfs_create_travel>-BookingFee.
+            TRY.
+                <lfs_log>-change_id = cl_system_uuid=>create_uuid_x16_static(  ).
+              CATCH cx_uuid_error.
+                " Do Nothing...
+            ENDTRY.
+
+            APPEND <lfs_log> TO lt_log_table_c.
+          ENDIF.
+
+          IF <lfs_create_travel>-%control-OverallStatus = cl_abap_behv=>flag_changed.
+            <lfs_log>-changed_field_name = 'Overall Status'.
+            <lfs_log>-changed_value = <lfs_create_travel>-OverallStatus.
+            TRY.
+                <lfs_log>-change_id = cl_system_uuid=>create_uuid_x16_static(  ).
+              CATCH cx_uuid_error.
+                " Do Nothing...
+            ENDTRY.
+
+            APPEND <lfs_log> TO lt_log_table_c.
+          ENDIF.
+        ENDIF.
+      ENDLOOP.
+
+      MODIFY zlaw_log_trv_m FROM TABLE @lt_log_table_c.
+    ENDIF.
+
+    IF update-zlaw_i_travel_m IS NOT INITIAL.
+      " Basically same logic pero yung update-<entity> ang babasahin mo
+    ENDIF.
+
+    IF delete-zlaw_i_travel_m IS NOT INITIAL.
+      " Basically same logic pero yung delete-<entity> ang babasahin mo
+    ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+
 CLASS lhc_ZLAW_I_Travel_M DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 

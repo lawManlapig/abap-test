@@ -1,11 +1,13 @@
 // Managed : SAP S4 framework handles the CRUD activities
-managed;
+//managed with additional save implementation in class zcl_save_class unique; // if you want to have additional save in global
+managed implementation in class zcl_bp_travel_law_m unique;
 //implementation in class zbp_law_i_travel_m unique; // Means that Class is at header level : Lahat ng Behavior isang class ginagamit
 strict ( 2 );
 
 define behavior for ZLAW_I_Travel_M //alias Travel
 implementation in class zcl_bp_travel_law_m unique
-persistent table zlaw_travel_m // Dito papasok yung data siyempre XD
+persistent table zlaw_travel_m // Dito papasok yung data siyempre XD with un
+with additional save
 
 // Entity Behavior Characteristics
 lock master
