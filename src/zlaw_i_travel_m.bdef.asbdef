@@ -113,7 +113,9 @@ early numbering
 
 define behavior for ZLAW_I_BookSuppl_M //alias <alias_name>
 implementation in class zcl_bp_bksuppl_law_m unique
-persistent table zlaw_bksuppl_m
+/* When doing unmanaged save, the persistent table cannot be defined */
+with unmanaged save with full data
+//persistent table zlaw_bksuppl_m // --> commented out because we are using unmanaged saving..
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt

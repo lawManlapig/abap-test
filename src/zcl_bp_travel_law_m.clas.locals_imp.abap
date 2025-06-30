@@ -63,6 +63,43 @@ CLASS lsc_zlaw_i_travel_m IMPLEMENTATION.
       " Basically same logic pero yung delete-<entity> ang babasahin mo
     ENDIF.
 
+
+**********************************************************************
+* UNMANAGED SAVE LOGIC                                               *
+**********************************************************************
+    DATA: lt_booking_supplement TYPE STANDARD TABLE OF zlaw_bksuppl_m.
+
+    IF create-zlaw_i_booksuppl_m IS NOT INITIAL.
+      lt_booking_supplement = CORRESPONDING #( create-zlaw_i_booksuppl_m
+                                MAPPING
+                                    booking_id = BookingId
+                                    booking_supplement_id = BookingSupplementId
+                                    supplement_id = SupplementId
+                                    currency_code = CurrencyCode
+                                    travel_id = TravelId ).
+
+*        CALL FUNCTION '/DMO/FLIGHT_BOOKSUPPL_C'
+*          EXPORTING
+*            values = lt_booking_supplement.
+
+      INSERT zlaw_bksuppl_m FROM TABLE @lt_booking_supplement.
+    ENDIF.
+
+    " For UPDATE, if you didn't use the 'with full data'
+    " in your Behavior Definition, you need to read first the
+    " Entity/Database to get all the necessary details...
+    IF update-zlaw_i_booksuppl_m IS NOT INITIAL.
+      lt_booking_supplement = CORRESPONDING #( update-zlaw_i_booksuppl_m ).
+
+      MODIFY zlaw_bksuppl_m FROM TABLE @lt_booking_supplement.
+    ENDIF.
+
+    IF delete-zlaw_i_booksuppl_m IS NOT INITIAL.
+      lt_booking_supplement = CORRESPONDING #( delete-zlaw_i_booksuppl_m ).
+
+      DELETE zlaw_bksuppl_m FROM TABLE @lt_booking_supplement.
+    ENDIF.
+
   ENDMETHOD.
 
 ENDCLASS.
