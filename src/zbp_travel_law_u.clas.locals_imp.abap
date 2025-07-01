@@ -29,8 +29,10 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING entities_cba FOR CREATE Travel\_Booking.
 
     " Variables
-    TYPES: tt_failed   TYPE TABLE FOR FAILED zlaw_i_travel_u\\travel,
-           tt_reported TYPE TABLE FOR REPORTED zlaw_i_travel_u\\travel.
+    TYPES: tt_failed           TYPE TABLE FOR FAILED zlaw_i_travel_u\\travel,
+           tt_reported         TYPE TABLE FOR REPORTED zlaw_i_travel_u\\travel,
+           tt_booking_failed   TYPE TABLE FOR FAILED ZLAW_I_Booking_U,
+           tt_booking_reported TYPE TABLE FOR REPORTED ZLAW_I_Booking_U.
 
     " Helper Methods
     METHODS map_messages
@@ -43,6 +45,17 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       CHANGING
         failed       TYPE tt_failed
         reported     TYPE tt_reported.
+
+    METHODS map_messages_assoc_to_booking
+      IMPORTING
+        cid          TYPE string
+        is_dependent TYPE abap_bool DEFAULT abap_false
+        messages     TYPE /dmo/t_message
+      EXPORTING
+        failed_added TYPE abap_boolean
+      CHANGING
+        failed       TYPE tt_booking_failed
+        reported     TYPE tt_booking_reported.
 
 ENDCLASS.
 
@@ -243,6 +256,81 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD cba_Booking.
+    DATA: lt_messages        TYPE /dmo/t_message,
+          lt_booking_old     TYPE /dmo/t_booking,
+          ls_booking         TYPE /dmo/booking,
+          lv_last_booking_id TYPE /dmo/booking_id VALUE '0'.
+
+    LOOP AT entities_cba ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+      DATA(lv_travelid) = <lfs_entities>-TravelID.
+
+      CALL FUNCTION '/DMO/FLIGHT_TRAVEL_READ'
+        EXPORTING
+          iv_travel_id = lv_travelid
+        IMPORTING
+          et_booking   = lt_booking_old
+          et_messages  = lt_messages.
+
+      " Get the Result
+      map_messages(
+        EXPORTING
+            cid = <lfs_entities>-%cid_ref
+            travel_id = <lfs_entities>-TravelID
+            messages = lt_messages
+        IMPORTING
+            failed_added = DATA(lv_failed_added)
+        CHANGING
+            failed = failed-travel
+            reported = reported-travel
+      ).
+
+      IF lv_failed_added = abap_true.
+        LOOP AT <lfs_entities>-%target ASSIGNING FIELD-SYMBOL(<lfs_target>).
+          map_messages_assoc_to_booking(
+            EXPORTING
+                cid = <lfs_target>-%cid
+                is_dependent = abap_true
+                messages = lt_messages
+            CHANGING
+                failed = failed-booking
+                reported = reported-booking
+          ).
+        ENDLOOP.
+      ELSE.
+        lv_last_booking_id = VALUE #( lt_booking_old[ lines( lt_booking_old ) ]-booking_id OPTIONAL ).
+
+        LOOP AT <lfs_entities>-%target ASSIGNING <lfs_target>.
+          ls_booking = CORRESPONDING #( <lfs_target> MAPPING FROM ENTITY USING CONTROL ).
+
+          lv_last_booking_id += 1.
+          ls_booking-booking_id = lv_last_booking_id.
+
+          CALL FUNCTION '/DMO/FLIGHT_TRAVEL_UPDATE'
+            EXPORTING
+              is_travel   = VALUE /dmo/s_travel_in( travel_id = lv_travelid )
+              is_travelx  = VALUE /dmo/s_travel_inx( travel_id = lv_travelid )
+              it_booking  = VALUE /dmo/t_booking_in( ( CORRESPONDING #( ls_booking ) ) )
+              it_bookingx = VALUE /dmo/t_booking_inx( ( booking_id = ls_booking-booking_id
+                                                        action_code = /dmo/if_flight_legacy=>action_code-create ) )
+            IMPORTING
+              et_messages = lt_messages.
+
+          IF lv_failed_added = abap_true.
+            LOOP AT <lfs_entities>-%target ASSIGNING <lfs_target>.
+              map_messages_assoc_to_booking(
+                EXPORTING
+                    cid = <lfs_target>-%cid
+                    is_dependent = abap_true
+                    messages = lt_messages
+                CHANGING
+                    failed = failed-booking
+                    reported = reported-booking
+              ).
+            ENDLOOP.
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
 
@@ -263,6 +351,37 @@ CLASS lhc_Travel IMPLEMENTATION.
         APPEND INITIAL LINE TO reported ASSIGNING FIELD-SYMBOL(<lfs_reported>).
         <lfs_reported>-%cid = cid.
         <lfs_reported>-TravelID = travel_id.
+        <lfs_reported>-%msg = new_message( " Available in super class cl_abap_behavior_handler
+                                id       = <lfs_messages>-msgid
+                                number   = <lfs_messages>-msgno
+                                severity = CONV #( <lfs_messages>-msgty )
+                                v1       = <lfs_messages>-msgv1
+                                v2       = <lfs_messages>-msgv2
+                                v3       = <lfs_messages>-msgv3
+                                v4       = <lfs_messages>-msgv4
+                              ).
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD map_messages_assoc_to_booking.
+    ASSERT cid IS NOT INITIAL. " In a create by assoc, %cid must be present
+
+    failed_added = abap_false.
+
+    LOOP AT messages ASSIGNING FIELD-SYMBOL(<lfs_messages>).
+      IF <lfs_messages>-msgty = 'E' OR <lfs_messages>-msgty = 'A'.
+        APPEND INITIAL LINE TO failed ASSIGNING FIELD-SYMBOL(<lfs_failed>).
+        <lfs_failed>-%cid = cid.
+        <lfs_failed>-%fail-cause = zlaw_travel_aux=>get_cause_from_message(
+                                     msgid = <lfs_messages>-msgid
+                                     msgno = <lfs_messages>-msgno
+                                     is_dependent = is_dependent ).
+
+        failed_added = abap_true.
+
+        APPEND INITIAL LINE TO reported ASSIGNING FIELD-SYMBOL(<lfs_reported>).
+        <lfs_reported>-%cid = cid.
         <lfs_reported>-%msg = new_message( " Available in super class cl_abap_behavior_handler
                                 id       = <lfs_messages>-msgid
                                 number   = <lfs_messages>-msgno

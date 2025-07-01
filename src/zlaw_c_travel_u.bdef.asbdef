@@ -7,14 +7,15 @@ use etag
   use create;
   use update;
   use delete;
-//
-//  use association _Booking { create; }
+
+  use association _Booking { create; }
 }
 
-//define behavior for ZLAW_C_Booking_U //alias <alias_name>
-//{
-//  use update;
-//  use delete;
-//
-//  use association _Travel;
-//}
+define behavior for ZLAW_C_Booking_U //alias <alias_name>
+use etag
+{
+  //  use update;
+  //  use delete;
+
+  use association _Travel;
+}
