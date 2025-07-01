@@ -49,6 +49,24 @@ ENDCLASS.
 CLASS lhc_Travel IMPLEMENTATION.
 
   METHOD get_instance_features.
+    READ ENTITIES OF ZLAW_I_Travel_U
+    IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( TravelID Status )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_read_result)
+    FAILED failed.
+
+    result = VALUE #(
+        FOR ls_result_travel IN lt_read_result
+        (
+            %tky = ls_result_travel-%tky
+            %assoc-_Booking = COND #( WHEN ls_result_travel-Status = 'B' OR ls_result_travel-Status = 'X'
+                                      THEN if_abap_behv=>fc-o-disabled
+                                      ELSE if_abap_behv=>fc-o-enabled )
+        )
+    ).
+
   ENDMETHOD.
 
   METHOD get_global_authorizations.
@@ -131,6 +149,27 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete.
+    DATA: lt_messages TYPE /dmo/t_message.
+
+    LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_keys>).
+      CALL FUNCTION '/DMO/FLIGHT_TRAVEL_DELETE'
+        EXPORTING
+          iv_travel_id = <lfs_keys>-TravelID
+        IMPORTING
+          et_messages  = lt_messages.
+
+      " Get the Result
+      map_messages(
+        EXPORTING
+            cid = <lfs_keys>-%cid_ref
+            travel_id = <lfs_keys>-TravelID
+            messages = lt_messages
+        CHANGING
+            failed = failed-travel
+            reported = reported-travel
+      ).
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD read.
