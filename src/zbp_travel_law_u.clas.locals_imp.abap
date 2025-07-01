@@ -35,7 +35,8 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
     " Helper Methods
     METHODS map_messages
       IMPORTING
-        cid          TYPE abp_behv_cid
+        cid          TYPE abp_behv_cid OPTIONAL
+        travel_id    TYPE /dmo/travel_id OPTIONAL
         messages     TYPE /dmo/t_message
       EXPORTING
         failed_added TYPE abap_boolean
@@ -60,19 +61,17 @@ CLASS lhc_Travel IMPLEMENTATION.
 
     " Loop the parameter
     LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+      " Mapping from entity - mapping ng fields ng entity
+      " Using control - ang mapapasa lang ay yung mga may changes... pag wala kang nilagay, lahat ng field ipapasa
       ls_travel_in = CORRESPONDING #( <lfs_entities> MAPPING FROM ENTITY USING CONTROL ).
 
       " Call the Legacy Code / Function Module
       CALL FUNCTION '/DMO/FLIGHT_TRAVEL_CREATE'
         EXPORTING
           is_travel         = CORRESPONDING /dmo/s_travel_in( ls_travel_in )
-*         it_booking        =
-*         it_booking_supplement =
           iv_numbering_mode = /dmo/if_flight_legacy=>numbering_mode-late
         IMPORTING
           es_travel         = ls_travel_out
-*         et_booking        =
-*         et_booking_supplement =
           et_messages       = lt_messages.
 
       " Get the Result
@@ -99,6 +98,36 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD update.
+    DATA: lt_messages  TYPE /dmo/t_message,
+          ls_travel_in TYPE /dmo/travel,
+          ls_travelx   TYPE /dmo/s_travel_inx.
+
+    LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+      ls_travel_in = CORRESPONDING #( <lfs_entities> MAPPING FROM ENTITY ).
+      ls_travelx-_intx = CORRESPONDING #( <lfs_entities> MAPPING FROM ENTITY ).
+      ls_travelx-travel_id = <lfs_entities>-TravelID.
+
+      CALL FUNCTION '/DMO/FLIGHT_TRAVEL_UPDATE'
+        EXPORTING
+          is_travel   = CORRESPONDING /dmo/s_travel_in( ls_travel_in )
+          is_travelx  = ls_travelx
+        IMPORTING
+          et_messages = lt_messages.
+
+      " Get the Result
+      map_messages(
+        EXPORTING
+            cid = <lfs_entities>-%cid_ref
+            travel_id = <lfs_entities>-TravelID
+            messages = lt_messages
+        IMPORTING
+            failed_added = DATA(lv_failed_added)
+        CHANGING
+            failed = failed-travel
+            reported = reported-travel
+      ).
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD delete.
@@ -124,6 +153,7 @@ CLASS lhc_Travel IMPLEMENTATION.
       IF <lfs_messages>-msgty = 'E' OR <lfs_messages>-msgty = 'A'.
         APPEND INITIAL LINE TO failed ASSIGNING FIELD-SYMBOL(<lfs_failed>).
         <lfs_failed>-%cid = cid.
+        <lfs_failed>-TravelID = travel_id.
         <lfs_failed>-%fail-cause = zlaw_travel_aux=>get_cause_from_message(
                                      msgid = <lfs_messages>-msgid
                                      msgno = <lfs_messages>-msgno ).
@@ -132,6 +162,7 @@ CLASS lhc_Travel IMPLEMENTATION.
 
         APPEND INITIAL LINE TO reported ASSIGNING FIELD-SYMBOL(<lfs_reported>).
         <lfs_reported>-%cid = cid.
+        <lfs_reported>-TravelID = travel_id.
         <lfs_reported>-%msg = new_message( " Available in super class cl_abap_behavior_handler
                                 id       = <lfs_messages>-msgid
                                 number   = <lfs_messages>-msgno

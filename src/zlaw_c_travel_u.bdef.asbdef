@@ -4,7 +4,7 @@ strict ( 2 );
 define behavior for ZLAW_C_Travel_U //alias <alias_name>
 {
   use create;
-//  use update;
+  use update;
 //  use delete;
 //
 //  use association _Booking { create; }
