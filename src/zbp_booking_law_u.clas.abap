@@ -1,0 +1,5 @@
+CLASS zbp_booking_law_u DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zlaw_i_travel_u.
+ENDCLASS.
+
+CLASS zbp_booking_law_u IMPLEMENTATION.
+ENDCLASS.
