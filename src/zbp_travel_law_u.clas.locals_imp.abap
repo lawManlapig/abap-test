@@ -134,9 +134,70 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD read.
+    DATA: ls_travel_out TYPE /dmo/travel,
+          lt_messages   TYPE /dmo/t_message.
+
+    LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_keys>)
+    GROUP BY <lfs_keys>-%tky.
+
+      CALL FUNCTION '/DMO/FLIGHT_TRAVEL_READ'
+        EXPORTING
+          iv_travel_id = <lfs_keys>-TravelID
+        IMPORTING
+          es_travel    = ls_travel_out
+          et_messages  = lt_messages.
+
+      " Get the Result
+      map_messages(
+        EXPORTING
+            travel_id = <lfs_keys>-TravelID
+            messages = lt_messages
+        IMPORTING
+            failed_added = DATA(lv_failed_added)
+        CHANGING
+            failed = failed-travel
+            reported = reported-travel
+      ).
+
+      IF lv_failed_added = abap_false.
+        INSERT CORRESPONDING #( ls_travel_out MAPPING TO ENTITY ) INTO TABLE result.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD lock.
+    TRY.
+        DATA(lr_lock) = cl_abap_lock_object_factory=>get_instance( iv_name = '/DMO/ETRAVEL' ).
+      CATCH cx_abap_lock_failure INTO DATA(lo_error).
+        RAISE SHORTDUMP lo_error.
+    ENDTRY.
+
+    LOOP AT keys ASSIGNING FIELD-SYMBOL(<lfs_keys>).
+
+      TRY.
+          lr_lock->enqueue(
+            it_parameter  = VALUE #( (  name = 'TRAVEL_ID' value = REF #( <lfs_keys>-TravelID ) ) )
+          ).
+        CATCH cx_abap_foreign_lock INTO DATA(lo_f_lock).
+          " Get the Result
+          map_messages(
+            EXPORTING
+                travel_id = <lfs_keys>-TravelID
+                messages = VALUE #( (
+                    msgid = '/DMO/CM_FLIGHT_LEGAC'
+                    msgno = '032'
+                    msgty = 'E'
+                    msgv1 = <lfs_keys>-TravelID
+                    msgv2 = lo_f_lock->user_name
+                ) )
+            CHANGING
+                failed = failed-travel
+                reported = reported-travel
+          ).
+        CATCH cx_abap_lock_failure.
+      ENDTRY.
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD rba_Booking.
