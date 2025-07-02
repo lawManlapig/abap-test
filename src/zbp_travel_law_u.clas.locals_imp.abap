@@ -22,6 +22,7 @@ CLASS lhc_Travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS lock FOR LOCK
       IMPORTING keys FOR LOCK Travel.
 
+    " Iniimplement mo yung logic nung EML for READ ENTITY pag unmanaged.. :)
     METHODS rba_Booking FOR READ
       IMPORTING keys_rba FOR READ Travel\_Booking FULL result_requested RESULT result LINK association_links.
 
@@ -253,6 +254,53 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD rba_Booking.
+    " You implement the logic here
+    " This will be triggered whenever you call the EML state
+    " READ ENTITY by Association
+    DATA: ls_travel_out  TYPE /dmo/travel,
+          lt_booking_out TYPE /dmo/t_booking,
+          lt_booking     LIKE LINE OF result,
+          lt_messages    TYPE /dmo/t_message.
+
+
+    LOOP AT keys_rba ASSIGNING FIELD-SYMBOL(<lfs_keys>).
+      CALL FUNCTION '/DMO/FLIGHT_TRAVEL_READ'
+        EXPORTING
+          iv_travel_id = <lfs_keys>-TravelID
+        IMPORTING
+          es_travel    = ls_travel_out
+          et_booking   = lt_booking_out
+          et_messages  = lt_messages.
+
+      " Get the Result
+      map_messages(
+        EXPORTING
+            travel_id = <lfs_keys>-TravelID
+            messages = lt_messages
+        IMPORTING
+            failed_added = DATA(lv_failed_added)
+        CHANGING
+            failed = failed-travel
+            reported = reported-travel
+      ).
+
+      IF lv_failed_added = abap_false.
+        LOOP AT lt_booking_out ASSIGNING FIELD-SYMBOL(<lfs_booking>).
+          INSERT VALUE #(
+            source-%tky = <lfs_keys>-%tky
+            target-%tky = VALUE #(
+                travelid = <lfs_booking>-travel_id
+                bookingid = <lfs_booking>-booking_id
+            )
+          ) INTO TABLE association_links.
+
+          IF result_requested = abap_true.
+            lt_booking = CORRESPONDING #( <lfs_booking> MAPPING TO ENTITY ).
+            INSERT lt_booking INTO TABLE result.
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD cba_Booking.
