@@ -14,8 +14,8 @@ use etag
 define behavior for ZLAW_C_Booking_U //alias <alias_name>
 use etag
 {
-  //  use update;
-  //  use delete;
+  use update;
+  use delete;
 
   use association _Travel;
 }
